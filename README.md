@@ -124,5 +124,5 @@ The following lists (except the last one) are loosely ordered by importance.
 - [Well-Kept Gardens Die By Pacifism - Eliezer Yudkowsky 
   (2009)](https://www.lesswrong.com/posts/tscc3e5eujrsEeFN4/well-kept-gardens-die-by-pacifism)
 - [Reflections: The ecosystem is moving - Moxie 
-  Marlinspike](https://signal.org/blog/the-ecosystem-is-moving/)
+  Marlinspike (2016)](https://signal.org/blog/the-ecosystem-is-moving/)
 

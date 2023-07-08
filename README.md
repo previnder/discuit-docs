@@ -1,4 +1,4 @@
-# Discuit
+# Discuit Docs
 
 One thing about product design: Defaults that cater to the majority, with tons 
 of options for users who would use them to customize their experience.

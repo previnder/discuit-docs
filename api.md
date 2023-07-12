@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # API Documentation
 
-Documentation for the Discuit API.
+Documentation for the [Discuit](https://discuit.net/) API.
 
 Base url: `https://discuit.net/api/`
 
@@ -43,8 +43,29 @@ returns the cookies that are needed for authenticated API requests. Namely, the
 `SID` (session id) cookie and the `csrftoken` cookie. However, it is recommended
 to use the `/api/_initial` endpoint for this.
 
-The value in the `csrftoken` cookie needs to be passed in an `X-CSRF-TOKEN` HTTP
+For example, this command,
+
+```
+curl 'https://discuit.net/api/_initial' -XGET -I
+```
+
+would return these HTTP headers:
+
+```
+Set-Cookie: SID=aVVdZDQLCaDUFnMEwKwpbzwoNVnytESJNRVI; Path=/; Expires=Sat, 06 Jul 2024 18:57:05 GMT; HttpOnly; Secure; SameSite=Lax
+Set-Cookie: csrftoken=ciSk6IDY7rQ1pHu9yueb2TXUjJQU8r1pKjisA3S7Px0=; Path=/
+Date: Wed, 12 Jul 2023 18:57:05 GMT
+Content-Type: text/html; charset=utf-8
+```
+
+The value in the `csrftoken` cookie needs to be passed in an `X-Csrf-Token` HTTP
 header for all except GET requests to mitigate Cross Site Request Forgeries.
+
+A login request, for example, would look like this:
+
+```
+curl 'http://discuit.net/api/_login' -XPOST -H 'Cookie: SID=aVVdZDQLCaDUFnMEwKwpbzwoNVnytESJNRVI' -H 'X-Csrf-Token: ciSk6IDY7rQ1pHu9yueb2TXUjJQU8r1pKjisA3S7Px0=' -d '{"username":"neo","password":"whatever"}'
+```
 
 
 ## Errors

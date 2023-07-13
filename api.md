@@ -49,13 +49,13 @@ to use the `/api/_initial` endpoint for this.
 
 For example, this command,
 
-```
+```bash
 curl 'https://discuit.net/api/_initial' -XGET -I
 ```
 
 would return these HTTP headers:
 
-```
+```bash
 Set-Cookie: SID=aVVdZDQLCaDUFnMEwKwpbzwoNVnytESJNRVI; Path=/; Expires=Sat, 06 Jul 2024 18:57:05 GMT; HttpOnly; Secure; SameSite=Lax
 Set-Cookie: csrftoken=ciSk6IDY7rQ1pHu9yueb2TXUjJQU8r1pKjisA3S7Px0=; Path=/
 Date: Wed, 12 Jul 2023 18:57:05 GMT
@@ -67,7 +67,7 @@ header for all except GET requests to mitigate Cross Site Request Forgeries.
 
 A login request, for example, would look like this:
 
-```
+```bash
 curl 'http://discuit.net/api/_login' -XPOST -H 'Cookie: SID=aVVdZDQLCaDUFnMEwKwpbzwoNVnytESJNRVI' -H 'X-Csrf-Token: ciSk6IDY7rQ1pHu9yueb2TXUjJQU8r1pKjisA3S7Px0=' -d '{"username":"neo","password":"whatever"}'
 ```
 
@@ -77,7 +77,7 @@ curl 'http://discuit.net/api/_login' -XPOST -H 'Cookie: SID=aVVdZDQLCaDUFnMEwKwp
 Most API errors return a JSON object of the following type, along with the
 appropriate HTTP status code:
 
-```
+```js
 {
     "status", // HTTP status code
     "code" // Custom error code
@@ -107,7 +107,7 @@ rest of this page.
 
 JSON response:
 
-```
+```js
 {
     // An array of reasons to report a post or a comment.
     "reportReasons",
@@ -133,7 +133,7 @@ JSON response:
 
 Requests must have the following JSON body:
 
-```
+```js
 {
     "username",
     "password"
@@ -155,7 +155,7 @@ required for logout. In other words, to logout a user, send a POST request to
 
 Requests must have the following JSON body:
 
-```
+```js
 {
     "username",
     "password",
@@ -217,7 +217,8 @@ is returned.
 Retrieve community and site-wide posts by 'hot', 'activity', etc.
 
 Response for normal feeds (for a request like: `/api/posts?feed=home&sort=hot`):
-```
+
+```js
 {
     "posts", // Array of posts
     "next", // Pagination cursor (null implies end of pagination)
@@ -229,7 +230,8 @@ allowed for moderators and admins. And these result sets are page paginated
 rather than cursor paginated.
 
 Reponse for moderator feeds (for a request like `/api/posts?communityId=17692e122def73f25bd757e0&filter=deleted`):
-```
+
+```js
 {
     "noPosts", // Posts count
     "limit",
@@ -267,7 +269,7 @@ Creates a post object and returns it.
 
 Request must have the following JSON body:
 
-```
+```js
 {
     // Post type. One of "text", "image", "link". Default is "text".
     "type", 
@@ -294,7 +296,7 @@ Updates a post. Must have the correct permissions.
 
 JSON request body:
 
-```
+```js
 {
     "title", // New title of post
     "body", // New body of post (for text-posts)
@@ -338,7 +340,8 @@ Votes a post up or down and returns the post. If already voted, then changes the
 vote.
 
 Request must have the following JSON body:
-```
+
+```js
 {
     "postId",
     "up" // true for upvotes, false for downvotes
@@ -356,7 +359,7 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
 ### User
 
-```
+```js
 {
     "id": string, 
     "username": string,
@@ -381,7 +384,7 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
 ### Post
 
-```
+```js
 {
     "id": string, 
     "publicId": string, // The value in https://discuit.net/gaming/post/{publicId}/
@@ -451,7 +454,7 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
 ### Community
 
-```
+```js
 {
     "id": string,
     "userId": string, // Id of the user who created the community

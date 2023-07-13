@@ -30,6 +30,10 @@ Base url: `https://discuit.net/api/`
   - [`/api/posts/{postId} [DELETE]`](#apipostspostid-delete)
   - [`/api/_postVote [POST]`](#api_postvote-post)
   - [`/api/posts/{postID}/comments [GET]`](#apipostspostidcomments-get)
+- [Objects](#objects)
+  - [User](#user)
+  - [Post](#post)
+  - [Community](#community)
 
 
 ## Authentication
@@ -139,7 +143,8 @@ Requests must have the following JSON body:
 If the username and password matches, the user object is returned. Otherwise, a
 401 (unauthorized) error is returned.
 
-If the user account is suspended, a 403 (forbidden) status is returned with an APIError code `"account_suspended"`.
+If the user account is suspended, a 403 (forbidden) status is returned with an
+APIError code `"account_suspended"`.
 
 If the user is authenticated and the request URL has the query parameter
 `action=logout`, user is logged out from the session. No request body is
@@ -344,3 +349,128 @@ Request must have the following JSON body:
 Returns a list of comments.
 
 `postId` in the URL is the `publicId` of the post.
+
+## Objects
+
+Time values are quoted strings in the RFC 3339 format with sub-second precision.
+
+### User
+
+```
+{
+    "id": string, 
+    "username": string,
+    "email": string, // Could be null
+    "emailConfirmedAt": time, // Could be null
+    "aboutMe": string, // Could be null
+    "points": int,
+    "isAdmin": bool,
+    "noPosts": int, // Post count of the user
+    "noComments": int, // Comment count of the user
+    "createdAt": time,
+    "deletedAt": time, // Could be null
+    "isBanned": bool, // Bool
+    "bannedAt": time, // Could be null
+    "notificationsNewCount": int, // Number of new notifications the user has
+    
+    // The list of communities that the user moderates. Could be null. This
+    // field is not always populated.
+    "moddingList": string[]
+}
+```
+
+### Post
+
+```
+{
+    "id": string, 
+    "publicId": string, // The value in https://discuit.net/gaming/post/{publicId}/
+    "type": string, // One of "text", "image", "link"
+
+    "userId": string, // Id of the author.
+    "username": string, // Username of the author.
+
+    // In what capacity the post was created. One of "normal", "admins", "mods".
+    // For "speaking officialy" as a mod or an admin.
+    "userGroup": string,
+
+    "userDeleted": bool, // Indicated whether the author's account is deleted 
+    "isPinned": bool,
+    "communityId": string, // The id of the community the post is posted in
+    "communityName": string, // The name of that community
+
+    "title": string,
+    "body": string, // Body of the post (only valid for text-posts)
+
+    // Only valid for link-posts. Could be null.
+    "link": {}
+
+    "communityProPic": {}, 
+    "communityBannerImage": {},
+
+    "locked": bool,
+    "lockedBy": string, // Who locked the post. Could be null.
+    "lockedByGroup": string, // One of "admins" or "mods". Could be null.
+    "lockedAt": time, // Could be null
+
+    "upvotes": int,
+    "downvotes": int,
+    "hotness": int, // For ordering posts by 'hot'
+
+    "createdAt": time,
+    "editedAt": time, // Last edited time. Could be null.
+    
+    // Either the post created time or, if there are comments on the post, the
+    // time the most recent comment was created at.
+    "lastActivityAt": time,
+
+    "deleted": bool,
+    "deletedAt": time, // Could be null
+    "deletedBy": string, // Id of the user who deleted the post. Could be null.
+    "deletedAs": string, // One of "normal", "admins", "mods". Could be null.
+
+    // If true, the body of the post and all associated links or images are
+    // deleted.
+    "deletedContent": bool,
+
+    "deletedContentAs": string,  // One of "normal", "admins", "mods". Could be null.
+
+    "noComments": int, // Comment count
+
+    "commments": [], // Comments of the post. This field is not always populated.
+    "commentsNext": string, // Pagination cursor. Could be null.
+
+    // Indicated whether the authenticated user has voted. If not authenticated,
+    // the value is null.
+    "userVoted": bool,
+    "userVotedUp": bool, // Indicates whether the authenticated user's vote is an upvote.
+
+    "community": {} // The community object of the post. Not always populated.
+}
+```
+
+### Community
+
+```
+{
+    "id": string,
+    "userId": string, // Id of the user who created the community
+    "name": string,
+    "nsfw": bool, // Indicates whether the community hosts NSFW content
+    "about": string, // Could be null
+    "noMembers": int, // Member count
+    "proPic": {},
+    "bannerImage": {},
+    "createdAt": time,
+    "deletedAt": time, // Could be null
+
+    "isDefault": bool, // This field is not always populated
+
+    "userJoined": bool, // Indicates whether the authenticated user is a member
+    "userMod": bool, // Indicates whether the authenticated user is a moderator
+
+    "mods": [] // An array of User objects. This field is not always populated.
+
+    "rules": [], // This field is not always populated
+}
+```

@@ -34,6 +34,10 @@ Base url: `https://discuit.net/api/`
   - [User](#user)
   - [Post](#post)
   - [Community](#community)
+  - [CommunityRule](#communityrule)
+  - [Comment](#comment)
+  - [Notification](#notification)
+  - [Report](#report)
 
 
 ## Authentication
@@ -474,6 +478,117 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
     "mods": [] // An array of User objects. This field is not always populated.
 
-    "rules": [], // This field is not always populated
+    "rules": [], // Array of CommunityRule. This field is not always populated
+
+    "reportDetails": {
+      "noReports": int, // Total reports count
+      "noPostReports": int, // Reported posts count
+      "noCommentReports": int, // Reported comments count
+    }, // This field is not always populated
+}
+```
+
+### CommunityRule
+
+```js
+{
+  "id": int,
+  "rule": string,
+  "description": string, // Could be null
+  "communityId": string,
+  "zIndex": int, // Determines rule ordering, with lower at top
+  "createdBy": string,
+  "createdAt": time
+}
+```
+
+### Comment
+
+```js
+{
+  "id": string,
+  "postId": string,
+  "postPublicId": string,
+  "communityId": string,
+  "communityName": string,
+  "userId": string,
+  "username": string,
+
+  // The capacity in which the comment was created.
+  "userGroup": string, // One of "normal", "admins", "mods".
+  "userDeleted": bool, // Indicates whether the author account is deleted
+  "parentId": string, // Parent comment id. Could be null.
+  "depth": int, // Top-most comments have a depth of 0
+  "noReplies": int, // Total number of replies
+  "noDirectReplies": int, // Number of direct replies
+
+  // Comment ids of all direct ancestor comments starting from the top-most
+  // comment.
+  "ancestors": [], // Array of string. Could be null.
+
+  "body": string, // Comment body
+  "upvotes": int,
+  "downvotes": int,
+  "createdAt": time,
+  "editedAt": time, // Last edit time. Could be null.
+
+  "deletedAt": time, // Comment deleted time. Could be null.
+
+  // User id of the person who deleted the comment.
+  "deletedBy": string, // Could be null
+
+  // In what capacity the comment was deleted.
+  "deletedAs": string, // One of "normal", "admins", "mods". Could be null.
+
+  // Indicated whether the authenticated user has voted. If not authenticated,
+  // the value is null.
+  "userVoted": bool,
+  "userVotedUp": bool, // Indicates whether the authenticated user's vote is an upvote
+
+  "postDeleted": bool, // Indicates whether the post the comment belongs to is deleted
+
+  // If the post is deleted, in what capacity.
+  "postDeletedAs": string // One of "normal", "admins", "mods".
+}
+```
+
+### Notification
+
+```js
+{
+  "id": int,
+
+  // Type of notification. One of "new_comment", "coment_reply", "new_votes",
+  // "deleted_post", "mod_add".
+  "type": string,
+
+  "notif": {}, // The actual notification
+
+  "seen": bool,
+  "seenAt": time, // Could be null
+  "createdAt": time
+}
+```
+
+### Report
+
+A report is a user submitted report of a post or a comment.
+
+```js
+{
+  "id": int,
+  "communityId": string,
+  "postId": string,
+  "reason": string,
+  "description": string,
+  "reasonId": int,
+  "type": string, // One of "post" or "comment"
+  "targetId": string, // Id of the post or the comment
+  "dealtAt": time, // Could be null
+  "dealtby": string, // Could be null
+  "createdAt": time,
+
+  // The comment or the post the report is made against.
+  "target": {}
 }
 ```

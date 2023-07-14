@@ -28,8 +28,28 @@ Base url: `https://discuit.net/api/`
   - [`/api/posts/{postId} [PUT]`](#apipostspostid-put)
     - [Possible errors](#possible-errors-3)
   - [`/api/posts/{postId} [DELETE]`](#apipostspostid-delete)
+    - [Query Parameters](#query-parameters-2)
   - [`/api/_postVote [POST]`](#api_postvote-post)
-  - [`/api/posts/{postID}/comments [GET]`](#apipostspostidcomments-get)
+  - [`/api/posts/{postId}/comments [GET]`](#apipostspostidcomments-get)
+    - [Query parameters](#query-parameters-3)
+  - [`/api/posts/{postId}/comments [POST]`](#apipostspostidcomments-post)
+    - [Query parameters](#query-parameters-4)
+  - [`/api/posts/{postId}/comments/{commentId} [PUT]`](#apipostspostidcommentscommentid-put)
+  - [`/api/posts/{postID}/comments/{commentId} [DELETE]`](#apipostspostidcommentscommentid-delete)
+    - [Query parameters](#query-parameters-5)
+  - [`/api/_commentVote [POST]`](#api_commentvote-post)
+  - [`/api/communities [GET]`](#apicommunities-get)
+    - [Query parameters](#query-parameters-6)
+  - [`/api/communities/{communityId} [Get]`](#apicommunitiescommunityid-get)
+  - [`/communities/{communityId} [PUT]`](#communitiescommunityid-put)
+  - [`/api/_joinCommunity [POST]`](#api_joincommunity-post)
+  - [`/api/communities/{communityId}/mods [GET]`](#apicommunitiescommunityidmods-get)
+  - [`/api/communities/{communityId}/mods [POST]`](#apicommunitiescommunityidmods-post)
+  - [`/api/communities/{communityId}/mods/{mod} [DELETE]`](#apicommunitiescommunityidmodsmod-delete)
+  - [`/api/communities/{communityId}/rules [GET]`](#apicommunitiescommunityidrules-get)
+  - [`/api/communities/{communityId}/rules [POST]`](#apicommunitiescommunityidrules-post)
+  - [`/api/communities/{communityId}/rules/{ruleId} [PUT]`](#apicommunitiescommunityidrulesruleid-put)
+  - [`/api/communities/{communityID}/rules/{ruleID} [DELETE]`](#apicommunitiescommunityidrulesruleid-delete)
 - [Objects](#objects)
   - [User](#user)
   - [Post](#post)
@@ -51,7 +71,7 @@ returns the cookies that are needed for authenticated API requests. Namely, the
 `SID` (session id) cookie and the `csrftoken` cookie. However, it is recommended
 to use the `/api/_initial` endpoint for this.
 
-For example, this command,
+For example, the command,
 
 ```bash
 curl 'https://discuit.net/api/_initial' -XGET -I
@@ -59,7 +79,7 @@ curl 'https://discuit.net/api/_initial' -XGET -I
 
 would return these HTTP headers:
 
-```bash
+```
 Set-Cookie: SID=aVVdZDQLCaDUFnMEwKwpbzwoNVnytESJNRVI; Path=/; Expires=Sat, 06 Jul 2024 18:57:05 GMT; HttpOnly; Secure; SameSite=Lax
 Set-Cookie: csrftoken=ciSk6IDY7rQ1pHu9yueb2TXUjJQU8r1pKjisA3S7Px0=; Path=/
 Date: Wed, 12 Jul 2023 18:57:05 GMT
@@ -83,8 +103,8 @@ appropriate HTTP status code:
 
 ```js
 {
-    "status", // HTTP status code
-    "code" // Custom error code
+    "status": string, // HTTP status code
+    "code": string // Custom error code
 }
 ```
 
@@ -114,22 +134,22 @@ JSON response:
 ```js
 {
     // An array of reasons to report a post or a comment.
-    "reportReasons",
+    "reportReasons": string[],
 
     // If authenticated, the user object of the authenticated user. Otherwise,
     // null.
-    "user",
+    "user": {},
 
     // If authenticated, the list of communities that the user is subscribed to.
     // Otherwise, the list of default communities is returned.
-    "communities",
+    "communities": Community[],
 
     // Discuit total user count.
-    "noUsers",
+    "noUsers": int,
 
     // The list of communities that the authenticated user is banned from. If
     // not authenticated, this value is null.
-    "bannedFrom"
+    "bannedFrom": string[]
 }
 ```
 
@@ -139,8 +159,8 @@ Requests must have the following JSON body:
 
 ```js
 {
-    "username",
-    "password"
+    "username": string,
+    "password": string
 }
 ```
 
@@ -161,11 +181,11 @@ Requests must have the following JSON body:
 
 ```js
 {
-    "username",
-    "password",
+    "username": string,
+    "password": string,
 
     // reCAPTCHA v2 token
-    "captchaToken",
+    "captchaToken": string,
 }
 ```
 
@@ -224,8 +244,8 @@ Response for normal feeds (for a request like: `/api/posts?feed=home&sort=hot`):
 
 ```js
 {
-    "posts", // Array of posts
-    "next", // Pagination cursor (null implies end of pagination)
+    "posts": Post[], // Array of posts
+    "next": string, // Pagination cursor (null implies end of pagination)
 }
 ```
 
@@ -237,10 +257,10 @@ Reponse for moderator feeds (for a request like `/api/posts?communityId=17692e12
 
 ```js
 {
-    "noPosts", // Posts count
-    "limit",
-    "page", // Current page number
-    "posts", // Array of posts
+    "noPosts": int, // Posts count
+    "limit": int,
+    "page": int, // Current page number
+    "posts": Post[], // Array of posts
 }
 ```
 
@@ -276,12 +296,12 @@ Request must have the following JSON body:
 ```js
 {
     // Post type. One of "text", "image", "link". Default is "text".
-    "type", 
+    "type": string, 
 
-    "title", // Required
-    "body", 
-    "community", // Name of community, required
-    "url", // Only valid for link-posts
+    "title": string, // Required
+    "body": string, 
+    "community": string, // Name of community, required
+    "url": string, // Only valid for link-posts
 }
 ```
 
@@ -302,8 +322,8 @@ JSON request body:
 
 ```js
 {
-    "title", // New title of post
-    "body", // New body of post (for text-posts)
+    "title": string, // New title of post
+    "body": string, // New body of post (for text-posts)
 }
 ```
 
@@ -330,6 +350,8 @@ Post body or title is not updated on requests with an `action=` query parameter.
 
 Deletes a post. Returns the deleted post.
 
+#### Query Parameters
+
 | Name          | Description                                                          |
 | ------------- | -------------------------------------------------------------------- |
 | deleteAs      | One of: `normal`, `mods`, `admins`. With `normal` being the default. |
@@ -347,15 +369,214 @@ Request must have the following JSON body:
 
 ```js
 {
-    "postId",
-    "up" // true for upvotes, false for downvotes
+    "postId": string,
+    "up": bool // true for upvotes, false for downvotes
 }
 ```
-### `/api/posts/{postID}/comments [GET]`
 
-Returns a list of comments.
+### `/api/posts/{postId}/comments [GET]`
 
-`postId` in the URL is the `publicId` of the post.
+Returns a paginated list of comments. The `postId` in the URL is the `publicId`
+of the post.
+
+Response:
+```js
+{
+  "comments": Comment[], // Array of Comment objects. Could be null.
+  "next": string // Pagination cursor. Could be null.
+}
+```
+
+#### Query parameters
+
+| Name              | Description                               |
+| ----------------- | ----------------------------------------- |
+| parentId (string) | If set, return parentId's child comments. |
+| next (string)     | Pagination cursor.                        |
+
+
+### `/api/posts/{postId}/comments [POST]`
+
+Requests must have the following JSON body: 
+
+```js
+{
+  "parentCommentId": string, // Could be null
+  "body": string
+}
+```
+
+Returns the added comment.
+
+#### Query parameters
+
+| Name               | Description                                                                      |
+| ------------------ | -------------------------------------------------------------------------------- |
+| userGroup (string) | Post comment as. One of `normal`, `admins`, `mods`, with `normal` being default. |
+
+
+### `/api/posts/{postId}/comments/{commentId} [PUT]`
+
+Updates a comment and returns the updated comment.
+
+Requests may have the following JSON body:
+```js
+{
+  "body": string // New comment body
+}
+```
+
+The query parameters `action=changeAsUser&userGroup=admins`, example, changes
+the "speaking as" status of a comment to that of an admin (if the authenticated
+user is an admin and it's the admin's comment).
+
+### `/api/posts/{postID}/comments/{commentId} [DELETE]`
+
+Deletes a comment and returns it.
+
+#### Query parameters
+
+| Name     | Description                                                         |
+| -------- | ------------------------------------------------------------------- |
+| deleteAs | One of `normal`, `admins`, `mods`, with `normal` being the default. |
+
+
+### `/api/_commentVote [POST]`
+
+Requests must have the following JSON body:
+
+```js
+{
+  "commentId": string,
+  "up": bool
+}
+```
+
+This endpoint is identical to `/api/_postVote`.
+
+
+### `/api/communities [GET]`
+
+Returns an array of Community objets.
+
+#### Query parameters
+
+| Name         | Description                            |
+| ------------ | -------------------------------------- |
+| set (string) | One of `all`, `default`, `subscribed`. |
+| q (string)   | Search query.                          |
+
+The query parameter `set=all` returns all communities available. And `default`
+returns the list of default communities, and `subscribed` returns the list of
+communities the authenticated user is a memeber of 
+
+If `q=` is set, a matching set of communities is returned.
+
+
+### `/api/communities/{communityId} [Get]`
+
+Returns a Community object.
+
+If the query parameter `byName=true` is present, `communityId` in the request
+URL is treated as the name of the community instead of its id.
+
+
+### `/communities/{communityId} [PUT]`
+
+Updates a community and returns it.
+
+If the query parameter `byName=true` is present, `communityId` in the request
+URL is treated as the name of the community instead of its id.
+
+Requests may have the following JSON body:
+
+```js
+{
+  "nsfw": bool, // Could be null
+  "about": string // Could be null
+}
+```
+
+### `/api/_joinCommunity [POST]`
+
+Make the authenticated user join or leave a community.
+
+Requests must have the following JSON body:
+
+```js
+{
+  "communityId": string
+  "leave": bool // false by default
+}
+```
+
+Returns a Community object.
+
+### `/api/communities/{communityId}/mods [GET]`
+
+Returns an array of User objects. The response could be null.
+
+### `/api/communities/{communityId}/mods [POST]`
+
+Make a user a moderator of a community.
+
+The authenticated user must have the correct permissions.
+
+Requests must have the following JSON body:
+
+```js
+{
+  "username": string // The new moderator
+}
+```
+
+Returns an array of User objects.
+
+
+### `/api/communities/{communityId}/mods/{mod} [DELETE]`
+
+Remove a user as a moderator of a community.
+
+The authenticated user must have the correct permissions.
+
+Returns the User object of the removed moderator.
+
+### `/api/communities/{communityId}/rules [GET]`
+
+Returns an array of community rules.
+
+### `/api/communities/{communityId}/rules [POST]`
+
+Creates a community rule.
+
+Requests must have the following JSON body:
+
+```js
+{
+  "rule": string,
+  "description: string
+}
+```
+
+### `/api/communities/{communityId}/rules/{ruleId} [PUT]`
+
+Updates a community rule.
+
+Requests may have the following JSON body:
+
+```js
+{
+  "rule": string, // Could be null
+  "description": string, // Could be null
+  "zIndex": int // Could be null
+}
+```
+
+Returns a community rule object.
+
+### `/api/communities/{communityID}/rules/{ruleID} [DELETE]`
+
+Deletes a community rule and returns it.
 
 ## Objects
 
@@ -444,7 +665,7 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
     "noComments": int, // Comment count
 
-    "commments": [], // Comments of the post. This field is not always populated.
+    "commments": Comment[], // Comments of the post. This field is not always populated.
     "commentsNext": string, // Pagination cursor. Could be null.
 
     // Indicated whether the authenticated user has voted. If not authenticated,
@@ -476,9 +697,9 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
     "userJoined": bool, // Indicates whether the authenticated user is a member
     "userMod": bool, // Indicates whether the authenticated user is a moderator
 
-    "mods": [] // An array of User objects. This field is not always populated.
+    "mods": User[] // An array of User objects. This field is not always populated.
 
-    "rules": [], // Array of CommunityRule. This field is not always populated
+    "rules": CommunityRule[], // Array of CommunityRule. This field is not always populated
 
     "reportDetails": {
       "noReports": int, // Total reports count
@@ -524,7 +745,7 @@ Time values are quoted strings in the RFC 3339 format with sub-second precision.
 
   // Comment ids of all direct ancestor comments starting from the top-most
   // comment.
-  "ancestors": [], // Array of string. Could be null.
+  "ancestors": string[], // Array of string. Could be null.
 
   "body": string, // Comment body
   "upvotes": int,
